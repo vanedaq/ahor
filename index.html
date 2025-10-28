@@ -1,0 +1,364 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Organizador Financiero</title>
+  <link rel="manifest" href="./manifest.json" />
+  <link rel="icon" href="./icon-192.png" />
+  <link rel="stylesheet" href="./style.app.css" />
+</head>
+<body>
+  <header class="hero">
+    <div class="hero-inner">
+      <div class="logo">💰</div>
+      <h1>Organizador Financiero</h1>
+      <p class="subtitle">Control inteligente de tus finanzas</p>
+
+      <div class="controls">
+        <select id="mesSelector" aria-label="Mes"></select>
+        <button id="duplicateBtn" class="btn">⏭️ Duplicar al siguiente mes</button>
+        <button id="duplicateToBtn" class="btn">📋 Duplicar a...</button>
+        <button id="closeMonthBtn" class="btn">🔒 Cerrar mes</button>
+        <button id="importBtn" class="btn">📤 Importar</button>
+        <input id="importFile" type="file" accept="application/json" style="display:none" />
+        <button id="exportBtn" class="btn">📥 Exportar</button>
+        <button id="resetBtn" class="btn danger">🧹 Reset</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="dashboard">
+      <div class="cards-grid">
+        <div class="card">
+          <div class="card-title">💵 Ingresos</div>
+          <div id="sumIngresos" class="card-value">$ 0</div>
+        </div>
+        <div class="card">
+          <div class="card-title">🏠 Fijos</div>
+          <div id="sumFijos" class="card-value">$ 0</div>
+        </div>
+        <div class="card">
+          <div class="card-title">💳 Tarjetas</div>
+          <div id="sumTarjetas" class="card-value">$ 0</div>
+        </div>
+        <div class="card">
+          <div class="card-title">🏦 Créditos</div>
+          <div id="sumCreditos" class="card-value">$ 0</div>
+        </div>
+        <div class="card">
+          <div class="card-title">🛒 Compras</div>
+          <div id="sumCompras" class="card-value">$ 0</div>
+        </div>
+        <div class="card">
+          <div class="card-title">💎 Ahorros</div>
+          <div id="sumAhorros" class="card-value">$ 0</div>
+        </div>
+        <div class="card wide">
+          <div class="card-title">📉 Total Gastos</div>
+          <div id="sumGastos" class="card-value">$ 0</div>
+        </div>
+        <div class="card wide accent">
+          <div class="card-title">💰 Disponible</div>
+          <div id="sumLibre" class="card-value">$ 0</div>
+        </div>
+      </div>
+
+      <nav class="tabs">
+        <button class="tab active" data-tab="dashboardPanel">📊 Dashboard</button>
+        <button class="tab" data-tab="ingresosPanel">💵 Ingresos</button>
+        <button class="tab" data-tab="fijosPanel">🏠 Fijos</button>
+        <button class="tab" data-tab="tarjetasPanel">💳 Tarjetas</button>
+        <button class="tab" data-tab="creditosPanel">🏦 Créditos</button>
+        <button class="tab" data-tab="comprasPanel">🛒 Compras</button>
+        <button class="tab" data-tab="ahorrosPanel">💎 Ahorros</button>
+        <button class="tab" data-tab="planAhorroPanel">📚 Plan de Ahorro</button>
+      </nav>
+    </section>
+
+    <section id="dashboardPanel" class="panel">
+      <h2>📈 Análisis del Mes</h2>
+      <div id="analisisMensual" class="bigbox"></div>
+      <h2>🎯 Metas de Ahorro</h2>
+      <div id="metasAhorro"></div>
+      <h2>📜 Historial</h2>
+      <div id="tablaHistorial"></div>
+      <h2>💡 Recomendaciones</h2>
+      <div id="recomendaciones"></div>
+    </section>
+
+    <section id="ingresosPanel" class="panel hidden">
+      <div class="panel-head">
+        <h2>💵 Ingresos</h2>
+        <button id="addIngreso" class="pill">+ Agregar</button>
+      </div>
+      <div id="listaIngresos"></div>
+    </section>
+
+    <section id="fijosPanel" class="panel hidden">
+      <div class="panel-head">
+        <h2>🏠 Gastos Fijos</h2>
+        <button id="addFijo" class="pill">+ Agregar</button>
+        <button id="markAllFijos" class="pill">✔️ Marcar todo pagado</button>
+      </div>
+      <div id="listaFijos"></div>
+    </section>
+
+    <section id="tarjetasPanel" class="panel hidden">
+      <div class="panel-head">
+        <h2>💳 Tarjetas de Crédito</h2>
+        <button id="addTarjeta" class="pill">+ Agregar</button>
+        <button id="markAllTarjetas" class="pill">✔️ Marcar todo pagado</button>
+      </div>
+      <div id="listaTarjetas"></div>
+    </section>
+
+    <section id="creditosPanel" class="panel hidden">
+      <div class="panel-head">
+        <h2>🏦 Créditos Bancarios</h2>
+        <button id="addCredito" class="pill">+ Agregar</button>
+        <button id="markAllCreditos" class="pill">✔️ Marcar todo pagado</button>
+      </div>
+      <div id="listaCreditos"></div>
+    </section>
+
+    <section id="comprasPanel" class="panel hidden">
+      <div class="panel-head">
+        <h2>🛒 Compras</h2>
+        <button id="addCompra" class="pill">+ Agregar</button>
+        <button id="markAllCompras" class="pill">✔️ Marcar todo pagado</button>
+      </div>
+      <div id="listaCompras"></div>
+    </section>
+
+    <section id="ahorrosPanel" class="panel hidden">
+      <div class="panel-head">
+        <h2>💎 Metas de Ahorro</h2>
+        <button id="addAhorro2" class="pill">+ Nueva Meta</button>
+      </div>
+      <div id="listaAhorros"></div>
+    </section>
+
+    <section id="planAhorroPanel" class="panel hidden">
+      <div class="savings-header">
+        <h2>📚 Plan de Ahorro Personalizado</h2>
+        <p class="subtitle-savings">Descubre, aprende y desarrolla hábitos financieros inteligentes</p>
+      </div>
+      
+      <!-- Sub-navegación del Plan de Ahorro -->
+      <nav class="savings-tabs">
+        <button class="savings-tab active" data-savings-tab="estrategias">🎯 Estrategias</button>
+        <button class="savings-tab" data-savings-tab="calculadoras">🧮 Calculadoras</button>
+        <button class="savings-tab" data-savings-tab="simulador">📈 Simulador</button>
+        <button class="savings-tab" data-savings-tab="logros">🏆 Mis Logros</button>
+        <button class="savings-tab" data-savings-tab="consejos">💡 Consejos</button>
+      </nav>
+
+      <!-- Vista: Estrategias -->
+      <div id="estrategias-view" class="savings-view active">
+        <div class="view-header">
+          <h3>🎯 Estrategias de Ahorro</h3>
+          <p>Elige la estrategia que mejor se adapte a tu estilo de vida</p>
+        </div>
+        
+        <div class="strategies-showcase">
+          <div class="strategy-card featured" data-strategy="50-30-20">
+            <div class="strategy-badge">Popular</div>
+            <div class="strategy-icon">📊</div>
+            <h4>Regla 50-30-20</h4>
+            <p>El método más recomendado por expertos financieros</p>
+            <div class="strategy-breakdown">
+              <div class="breakdown-item">
+                <span class="percentage">50%</span>
+                <span class="label">Necesidades</span>
+              </div>
+              <div class="breakdown-item">
+                <span class="percentage">30%</span>
+                <span class="label">Gustos</span>
+              </div>
+              <div class="breakdown-item">
+                <span class="percentage">20%</span>
+                <span class="label">Ahorro</span>
+              </div>
+            </div>
+            <button class="pill primary" onclick="app.aplicarEstrategia('50-30-20')">Aplicar Ahora</button>
+          </div>
+          
+          <div class="strategies-grid-mini">
+            <div class="strategy-card-mini" data-strategy="automatico">
+              <div class="strategy-icon">🤖</div>
+              <h4>Ahorro Automático</h4>
+              <p>Configura un % fijo de tus ingresos</p>
+              <button class="pill" onclick="app.aplicarEstrategia('automatico')">Configurar</button>
+            </div>
+            
+            <div class="strategy-card-mini" data-strategy="metas">
+              <div class="strategy-icon">🎯</div>
+              <h4>Por Metas</h4>
+              <p>Objetivos específicos con fechas</p>
+              <button class="pill" onclick="app.aplicarEstrategia('metas')">Crear Meta</button>
+            </div>
+            
+            <div class="strategy-card-mini" data-strategy="emergencia">
+              <div class="strategy-icon">🚨</div>
+              <h4>Emergencia</h4>
+              <p>3-6 meses de gastos básicos</p>
+              <button class="pill" onclick="app.aplicarEstrategia('emergencia')">Calcular</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Vista: Calculadoras -->
+      <div id="calculadoras-view" class="savings-view">
+        <div class="view-header">
+          <h3>🧮 Herramientas de Cálculo</h3>
+          <p>Planifica tus ahorros con precisión matemática</p>
+        </div>
+        
+        <div class="calculators-grid">
+          <div class="calculator-widget">
+            <div class="widget-header">
+              <div class="widget-icon">🎯</div>
+              <div>
+                <h4>Calculadora de Metas</h4>
+                <p>¿Cuánto debo ahorrar mensualmente?</p>
+              </div>
+            </div>
+            <div class="widget-content">
+              <div class="input-row">
+                <div class="field">
+                  <label>Meta ($)</label>
+                  <input type="number" id="metaCalculadora" placeholder="5,000,000">
+                </div>
+                <div class="field">
+                  <label>Plazo (meses)</label>
+                  <input type="number" id="plazoCalculadora" placeholder="12">
+                </div>
+              </div>
+              <div class="field">
+                <label>Ahorro Actual ($)</label>
+                <input type="number" id="actualCalculadora" placeholder="0">
+              </div>
+              <button class="pill primary full-width" onclick="app.calcularAhorro()">Calcular Plan</button>
+              <div class="calc-results" id="resultadosCalculadora"></div>
+            </div>
+          </div>
+          
+          <div class="calculator-widget">
+            <div class="widget-header">
+              <div class="widget-icon">⚡</div>
+              <div>
+                <h4>Calculadora Rápida</h4>
+                <p>Análisis instantáneo de tu situación</p>
+              </div>
+            </div>
+            <div class="widget-content">
+              <button class="pill secondary full-width" onclick="app.analisisRapido()">Analizar Mi Situación</button>
+              <button class="pill secondary full-width" onclick="app.calcularEmergencia()">Calcular Fondo Emergencia</button>
+              <button class="pill secondary full-width" onclick="app.optimizarGastos()">Optimizar Gastos</button>
+              <div id="analisisRapidoResultado"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Vista: Simulador -->
+      <div id="simulador-view" class="savings-view">
+        <div class="view-header">
+          <h3>📈 Simulador de Crecimiento</h3>
+          <p>Visualiza el poder del interés compuesto</p>
+        </div>
+        
+        <div class="simulator-layout">
+          <div class="simulator-controls">
+            <div class="control-group">
+              <h4>💰 Parámetros de Simulación</h4>
+              <div class="field">
+                <label>Ahorro Mensual ($)</label>
+                <input type="number" id="ahorroMensual" placeholder="200,000">
+              </div>
+              <div class="input-row">
+                <div class="field">
+                  <label>Período (meses)</label>
+                  <input type="number" id="periodoSimulador" placeholder="24">
+                </div>
+                <div class="field">
+                  <label>Tasa Anual (%)</label>
+                  <input type="number" id="tasaInteres" placeholder="5" step="0.1">
+                </div>
+              </div>
+              <button class="pill primary full-width" onclick="app.simularCrecimiento()">Simular Crecimiento</button>
+            </div>
+            
+            <div class="quick-scenarios">
+              <h4>📊 Escenarios Rápidos</h4>
+              <button class="scenario-btn" onclick="app.escenarioConservador()">Conservador (3%)</button>
+              <button class="scenario-btn" onclick="app.escenarioModerado()">Moderado (7%)</button>
+              <button class="scenario-btn" onclick="app.escenarioAgresivo()">Agresivo (12%)</button>
+            </div>
+          </div>
+          
+          <div class="simulator-display">
+            <div class="chart-container" id="graficoSimulacion">
+              <div class="chart-placeholder">
+                <div class="placeholder-icon">📈</div>
+                <p>Ingresa los datos y presiona "Simular" para ver tu proyección</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Vista: Logros -->
+      <div id="logros-view" class="savings-view">
+        <div class="view-header">
+          <h3>🏆 Mis Logros de Ahorro</h3>
+          <p>Celebra tu progreso y desbloquea nuevos niveles</p>
+        </div>
+        
+        <div class="achievements-dashboard">
+          <div class="progress-summary" id="resumenProgreso"></div>
+          <div class="achievements-grid" id="logrosAhorro"></div>
+        </div>
+      </div>
+
+      <!-- Vista: Consejos -->
+      <div id="consejos-view" class="savings-view">
+        <div class="view-header">
+          <h3>💡 Consejos Personalizados</h3>
+          <p>Tips adaptados a tu situación financiera actual</p>
+        </div>
+        
+        <div class="consejos-layout">
+          <div class="consejo-destacado" id="consejoDestacado"></div>
+          <div class="consejos-carrusel">
+            <div class="carrusel-header">
+              <h4>📚 Biblioteca de Consejos</h4>
+              <div class="carrusel-controls">
+                <button class="carrusel-btn" onclick="app.anteriorConsejo()">‹</button>
+                <button class="carrusel-btn" onclick="app.siguienteConsejo()">›</button>
+              </div>
+            </div>
+            <div class="consejos-container" id="consejosAhorro"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Modal -->
+  <div id="modal" class="modal hidden" aria-hidden="true">
+    <div class="modal-box">
+      <button id="closeModal" class="modal-close" aria-label="Cerrar">✖</button>
+      <h3 id="modalTitle">Formulario</h3>
+      <form id="modalForm"></form>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" aria-hidden="true"></div>
+
+  <script src="./app.app.js" defer></script>
+</body>
+</html>
